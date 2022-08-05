@@ -16,3 +16,4 @@
 !/php/ssl/myca/.gitkeep
 /php/conf/*
 !/php/conf/.gitkeep
+!/php/conf/000-default.example.conf
