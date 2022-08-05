@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+  web:
+    hostname: web
+    build:
+      context: ./php
+      dockerfile: ./dockerfile
+      args:
+        - USERNAME=xxx
+        - GROUPNAME=xxx
+        - UID=0000
+        - GID=0000
+    volumes:
+      - ./html:/var/www/html
+      # - ./php/php.ini:/usr/local/etc/php/php.ini
+      # - ./php/conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      # - ./php/conf/ssl.conf:/etc/apache2/mods-available/ssl.conf
+      # - ./php/ssl/openssl.cnf:/etc/ssl/openssl.cnf
+      - ./php/ssl/myca:/etc/ssl/myca
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      # - postgres
+      - mysql
+    extra_hosts:
+        - penguin:127.0.0.1
+
+  # postgres:
+  #   image: postgres:11
+  #   volumes:
+  #     - ./postgres_db:/var/lib/postgresql/data
+  #     - ./postgres_ex:/ex
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+
+  mysql:
+    hostname: mysql
+    image: mysql:5.7
+    volumes:
+      - ./mysql_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - 3306:3306
+
+  mail:
+    hostname: mailhog
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025

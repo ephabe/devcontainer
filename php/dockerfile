@@ -1,0 +1,56 @@
+FROM php:8.1.6-apache
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN apt-get update && \
+    apt-get -y install libpq-dev \
+    libonig-dev
+RUN docker-php-ext-install pdo_pgsql pgsql pdo_mysql mysqli
+RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load
+
+RUN a2enmod ssl
+
+RUN apt-get install -y \
+            zlib1g-dev \
+            libzip-dev \
+            mariadb-client \
+            git \
+            zip \
+            libfreetype6-dev \ 
+            libjpeg62-turbo-dev \
+            libpng-dev \
+            libjpeg-dev \
+            libicu-dev \
+&& docker-php-ext-install \
+            bcmath \
+            gd \
+            zip \
+            intl \
+&& docker-php-ext-configure gd \
+            --with-freetype=/usr/include/ \
+            --with-jpeg=/usr/include/ \
+&& docker-php-ext-install -j$(nproc) gd
+
+# node
+RUN apt-get install -y nodejs npm && npm install n -g && n 14.15.3
+
+# gosu
+RUN apt-get install -y gosu
+
+# useradd
+ARG USERNAME
+ARG GROUPNAME
+ARG UID
+ARG GID
+RUN groupadd -g $GID $GROUPNAME && \
+    useradd -m -s /bin/bash -u $UID -g $GID $USERNAME
+
+#composer
+RUN mkdir /home/$USERNAME/.composer && chown -R $USERNAME:$GROUPNAME /home/$USERNAME/.composer
+
+#npm
+RUN mkdir /.npm && chown -R $USERNAME:$GROUPNAME /.npm
+RUN mkdir /.npm/_locks && chown -R $USERNAME:$GROUPNAME /.npm/_locks
+
+#mhsendmail
+RUN curl -sSL https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 -o mhsendmail \
+    && chmod +x mhsendmail \
+    && mv mhsendmail /usr/local/bin/mhsendmail
