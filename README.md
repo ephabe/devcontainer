@@ -5,6 +5,11 @@ html以下にプロジェクトファイルを展開してください。
 
 # 構築の手順
 
+## clone
+```
+git clone https://github.com/ephabe/web.git project_name
+```
+
 ## 起動前
 php/dockerfile を必要なphp環境に合わせて書き換えてください。
 また、docker-compose.example.ymlをコピーしてdocker-compose.ymlを作成し、UIDやGIDの内容、およびDBのrootパスワードを設定してください。
