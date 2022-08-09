@@ -15,6 +15,7 @@ services:
       - ./html:/var/www/html
       # - ./php/php.ini:/usr/local/etc/php/php.ini
       # - ./php/conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      # - ./php/conf/envvars:/etc/apache2/envvars
       # - ./php/conf/ssl.conf:/etc/apache2/mods-available/ssl.conf
       # - ./php/ssl/openssl.cnf:/etc/ssl/openssl.cnf
       - ./php/ssl/myca:/etc/ssl/myca

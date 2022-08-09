@@ -21,9 +21,10 @@ docker-compose up -d
 
 ## dockerイメージからconfをコピーしてくる
 ```
-docker cp `docker-compose ps -q web`:/etc/apache2/sites-available/000-default.conf ./php/conf/000-default.conf
-docker cp `docker-compose ps -q web`:/etc/apache2/mods-available/ssl.conf ./php/conf/ssl.conf
-docker cp `docker-compose ps -q web`:/etc/ssl/openssl.cnf ./php/ssl/openssl.cnf
+docker cp `docker-compose ps -q web`:/etc/apache2/sites-available/000-default.conf ./php/conf/000-default.conf && \
+docker cp `docker-compose ps -q web`:/etc/apache2/mods-available/ssl.conf ./php/conf/ssl.conf && \
+docker cp `docker-compose ps -q web`:/etc/ssl/openssl.cnf ./php/ssl/openssl.cnf && \
+docker cp `docker-compose ps -q web`:/etc/apache2/envvars ./php/conf/envvars
 ```
 
 ## 証明書の作成
@@ -71,7 +72,7 @@ openssl x509 -in ssl.crt -text -noout
 docker-compose down
 ```
 
-## confを書き換え
+## confファイルなどを書き換え
 000-default.conf
 ```
 NameVirtualHost *:80
@@ -113,6 +114,17 @@ openssl.cnf
 DNS.1 = dev.internal
 DNS.2 = *.dev.internal
 ```
+
+envvars
+phpの実行ユーザーを書き換え
+```
+: ${APACHE_RUN_USER:=xxxxxx}
+export APACHE_RUN_USER
+: ${APACHE_RUN_GROUP:=xxxxxx}
+export APACHE_RUN_GROUP
+```
+php.iniで、ここで指定したUID, GIDで実行するように指定している。
+また、ユーザーはdockerfileで作成済み。
 
 ## 証明書をホスト側にインストール
 既にインストール済ならスキップ。
