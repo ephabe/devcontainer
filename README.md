@@ -14,6 +14,10 @@ git clone https://github.com/ephabe/web.git project_name
 php/dockerfile を必要なphp環境に合わせて書き換えてください。
 また、docker-compose.example.ymlをコピーしてdocker-compose.ymlを作成し、UIDやGIDの内容、およびDBのrootパスワードを設定してください。
 
+.env.exampleをコピーして.envを作成してください。こちらも、環境に合わせて内容を書き換えてください。
+USERNAME以下は、phpを実行するユーザーを指定してください。この内容でuseraddした後、phpの実行ユーザーとして指定します。
+ホストのユーザーと合わせることで、volume内のソース管理などにかかわる権限がスムーズに行きます。
+
 ## 初回起動
 ```
 docker-compose up -d
@@ -22,9 +26,7 @@ docker-compose up -d
 ## dockerイメージからconfをコピーしてくる
 ```
 docker cp `docker-compose ps -q web`:/etc/apache2/sites-available/000-default.conf ./php/conf/000-default.conf && \
-docker cp `docker-compose ps -q web`:/etc/apache2/mods-available/ssl.conf ./php/conf/ssl.conf && \
-docker cp `docker-compose ps -q web`:/etc/ssl/openssl.cnf ./php/ssl/openssl.cnf && \
-docker cp `docker-compose ps -q web`:/etc/apache2/envvars ./php/conf/envvars
+docker cp `docker-compose ps -q web`:/etc/apache2/mods-available/ssl.conf ./php/conf/ssl.conf
 ```
 
 ## 証明書の作成
@@ -90,12 +92,12 @@ Listen 3000
 
 <VirtualHost *:80>
   ServerName dev.internal
-  DocumentRoot /var/www/html/public
+  DocumentRoot /var/www/html
 </VirtualHost>
 
 <VirtualHost *:443>
   ServerName dev.internal
-  DocumentRoot /var/www/html/public
+  DocumentRoot /var/www/html
 </VirtualHost>
 ```
 
@@ -107,25 +109,6 @@ SSLCertificateFile /etc/ssl/myca/ssl.crt
 SSLCertificateKeyFile /etc/ssl/myca/ssl.key
 ```
 
-openssl.cnf
-追記。必要に応じて書き換え
-```
-[ alt_names ]
-DNS.1 = dev.internal
-DNS.2 = *.dev.internal
-```
-
-envvars
-phpの実行ユーザーを書き換え
-```
-: ${APACHE_RUN_USER:=xxxxxx}
-export APACHE_RUN_USER
-: ${APACHE_RUN_GROUP:=xxxxxx}
-export APACHE_RUN_GROUP
-```
-php.iniで、ここで指定したUID, GIDで実行するように指定している。
-また、ユーザーはdockerfileで作成済み。
-
 ## 証明書をホスト側にインストール
 既にインストール済ならスキップ。
 myca直下に作成されたcrtファイルをホストにインストールする。
@@ -135,7 +118,6 @@ myca直下に作成されたcrtファイルをホストにインストールす�
 - ./php/php.ini:/usr/local/etc/php/php.ini
 - ./php/conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
 - ./php/conf/ssl.conf:/etc/apache2/mods-available/ssl.conf
-- ./php/ssl/openssl.cnf:/etc/ssl/openssl.cnf
 ```
 
 ## 再起動
@@ -147,7 +129,7 @@ docker-compose up -d
 
 ## ユーザーを指定して実行
 ```
-docker-compose exec web gosu 1002:1002 ~
+docker-compose exec web gosu $(id -u):$(id -g) ~~
 ```
 
 ## dockerイメージをキャッシュを使用せずに再ビルド

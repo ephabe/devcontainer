@@ -43,6 +43,9 @@ ARG GID
 RUN groupadd -g $GID $GROUPNAME && \
     useradd -m -s /bin/bash -u $UID -g $GID $USERNAME
 
+# php user/group
+RUN sed -i.bak -e "s/APACHE_RUN_USER:=www-data/APACHE_RUN_USER:=${USERNAME}/g"  -e "s/APACHE_RUN_GROUP:=www-data/APACHE_RUN_GROUP:=${GROUPNAME}/g" /etc/apache2/envvars
+
 #composer
 RUN mkdir /home/$USERNAME/.composer && chown -R $USERNAME:$GROUPNAME /home/$USERNAME/.composer
 
