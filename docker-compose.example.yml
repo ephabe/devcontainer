@@ -7,10 +7,10 @@ services:
       context: ./php
       dockerfile: ./dockerfile
       args:
-        - USERNAME=xxx
-        - GROUPNAME=xxx
-        - UID=0000
-        - GID=0000
+        - USERNAME=${USERNAME:-ubuntu}
+        - GROUPNAME=${GROUPNAME:-ubuntu}
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     volumes:
       - ./html:/var/www/html
       # - ./php/php.ini:/usr/local/etc/php/php.ini
@@ -20,9 +20,6 @@ services:
     ports:
       - "${WEB_HTTP_PORT:-80}:80"
       - "${WEB_HTTPS_PORT:-443}:443"
-    environment:
-      - WEB_HTTP_PORT
-      - WEB_HTTPS_PORT
     depends_on:
       # - postgres
       - mysql
@@ -45,13 +42,14 @@ services:
     image: mysql:5.7
     volumes:
       - ./mysql_db:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: 'password'
     ports:
-      - 3306:3306
+      - ${MYSQL_PORT:-3306}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
 
   mail:
     hostname: mailhog
     image: mailhog/mailhog
     ports:
-      - 8025:8025
+      - ${MAILHOG_SMTP_PORT:-1025}:1025
+      - ${MAILHOG_FRONT_PORT:-8025}:8025
