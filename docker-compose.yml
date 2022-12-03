@@ -13,10 +13,10 @@ services:
         - GID=${GID:-1000}
     volumes:
       - ./html:/var/www/html
-      # - ./php/php.ini:/usr/local/etc/php/php.ini
-      # - ./php/conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
-      # - ./php/conf/ssl.conf:/etc/apache2/mods-available/ssl.conf
-      - ./php/ssl/myca:/etc/ssl/myca
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./apache/ssl.conf:/etc/apache2/mods-available/ssl.conf
+      - ./myca:/etc/ssl/myca
     ports:
       - "${WEB_HTTP_PORT:-80}:80"
       - "${WEB_HTTPS_PORT:-443}:443"
@@ -24,7 +24,7 @@ services:
       # - postgres
       - mysql
     extra_hosts:
-      - dev.internal:127.0.0.1
+      - dev.penguin.internal:127.0.0.1
 
   # postgres:
   #   image: postgres:11
@@ -39,17 +39,30 @@ services:
 
   mysql:
     hostname: mysql
-    image: mysql:5.7
+    image: mysql:8.0
     volumes:
       - ./mysql_db:/var/lib/mysql
+      - ./mysql_ex:/ex
     ports:
       - ${MYSQL_PORT:-3306}:3306
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
 
   mail:
-    hostname: mailhog
-    image: mailhog/mailhog
+    hostname: smtp4dev
+    image: rnwood/smtp4dev:v3.1
     ports:
-      - ${MAILHOG_SMTP_PORT:-1025}:1025
-      - ${MAILHOG_FRONT_PORT:-8025}:8025
+      - '${FORWARD_SMTP4DEV_ADMIN_PORT:-5000}:80'
+      - '${FORWARD_SMTP4DEV_SMTP_PORT:-2525}:25'
+    volumes:
+      - './smtp4dev-data:/smtp4dev'
+    environment:
+      - ServerOptions__HostName=smtp4dev
+      - ServerOptions__BasePath=/smtp4dev
+
+  # mail:
+  #   hostname: mailhog
+  #   image: mailhog/mailhog
+  #   ports:
+  #     - ${MAILHOG_SMTP_PORT:-1025}:1025
+  #     - ${MAILHOG_FRONT_PORT:-8025}:8025

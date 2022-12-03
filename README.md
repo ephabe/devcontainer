@@ -7,7 +7,7 @@ html以下にプロジェクトファイルを展開してください。
 
 ## clone
 ```
-git clone https://github.com/ephabe/web.git project_name
+git clone https://github.com/ephabe/webcontainer.git project_name
 ```
 
 ## 起動前
