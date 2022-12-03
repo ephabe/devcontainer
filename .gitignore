@@ -19,5 +19,8 @@
 /postgres_ex/*
 !/postgres_ex/.gitkeep
 
+/smtp4dev-data/*
+!/smtp4dev-data/.gitkeep
+
 /myca/*
 !/myca/.gitkeep

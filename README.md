@@ -10,27 +10,55 @@ html以下にプロジェクトファイルを展開してください。
 git clone https://github.com/ephabe/webcontainer.git project_name
 ```
 
-## 起動前
-php/dockerfile を必要なphp環境に合わせて書き換えてください。
-また、docker-compose.example.ymlをコピーしてdocker-compose.ymlを作成し、UIDやGIDの内容、およびDBのrootパスワードを設定してください。
+## 起動前に
 
-.env.exampleをコピーして.envを作成してください。こちらも、環境に合わせて内容を書き換えてください。
-USERNAME以下は、phpを実行するユーザーを指定してください。この内容でuseraddした後、phpの実行ユーザーとして指定します。
-ホストのユーザーと合わせることで、volume内のソース管理などにかかわる権限がスムーズに行きます。
+### .env
+.env.exampleをコピーして.envを作成してください。
 
-## 初回起動
+`WEB_HOST_NAME` アクセスするhostname。ホスト（ブラウザ）側のhostsの記述と合わせせておくと良いです。
+
+`WEB_DOCUMENT_ROOT` webコンテナ内のwebroot path。
+
+`WEB_HTTP_PORT, WEB_HTTPS_PORT` アクセスする時port
+
+`USERNAM, GROUPNAME, UID, GID` このユーザーを作成したあと、apacheがこのユーザーで実行されるようになります。ホスト（エディタやgit）のユーザーと合わせることで、volume内のソース管理などにかかわる権限がスムーズに行きます。
+
+
+### 証明書ファイルの設置
+./myca 直下に、以下のファイルを設置してください。
+（ssl.conf 末尾に記述）
+```
+ssl.srt
+ssl.key
+```
+
+証明書ファイルを作成できない場合はSSL関連ファイルのvolomesの記述をコメントアウトしてください（次項）。
+
+### SSLが不要な場合
+SSL化不要の場合は docker-compose.yml 内、webコンテナのvolumeesの記述で、以下の行をコメントアウトしてください。
+```
+      # - ./apache/ssl.conf:/etc/apache2/mods-available/ssl.conf
+      # - ./myca:/etc/ssl/myca
+```
+
+## 起動
 ```
 docker-compose up -d
 ```
 
-## dockerイメージからconfをコピーしてくる
+## 終了
 ```
-docker cp `docker-compose ps -q web`:/etc/apache2/sites-available/000-default.conf ./php/conf/000-default.conf && \
-docker cp `docker-compose ps -q web`:/etc/apache2/mods-available/ssl.conf ./php/conf/ssl.conf
+docker-compose down
 ```
 
+
+# 証明書の作成
+
+いわゆるオレオレ証明書を作る。
+
 ## 証明書の作成
-既にある場合は myca 直下に証明書ファイルを配置してスキップ。
+
+備考。
 
 コンテナに入る
 ```
@@ -69,61 +97,9 @@ openssl x509 -req -sha256 -days 365 -signkey ssl.key -in ssl.csr -out ssl.crt -e
 openssl x509 -in ssl.crt -text -noout
 ```
 
-## 一旦終了
-```
-docker-compose down
-```
-
-## confファイルなどを書き換え
-000-default.conf
-```
-NameVirtualHost *:80
-Listen 3000
-
-<VirtualHost *:80>
-  ServerName localhost
-  DocumentRoot /var/www/html
-  <Directory /var/www/html>
-    Options Indexes FollowSymLinks
-    AllowOverride All
-    Require all granted
-  </Directory>
-</VirtualHost>
-
-<VirtualHost *:80>
-  ServerName dev.internal
-  DocumentRoot /var/www/html
-</VirtualHost>
-
-<VirtualHost *:443>
-  ServerName dev.internal
-  DocumentRoot /var/www/html
-</VirtualHost>
-```
-
-ssl.conf
-追記。必要に応じて書き換え
-ファイル末尾 &lt;/IfModule&gt; 直前
-```
-SSLCertificateFile /etc/ssl/myca/ssl.crt
-SSLCertificateKeyFile /etc/ssl/myca/ssl.key
-```
-
 ## 証明書をホスト側にインストール
-既にインストール済ならスキップ。
 myca直下に作成されたcrtファイルをホストにインストールする。
 
-## docker-compose.ymlのコメントアウトを外す
-```
-- ./php/php.ini:/usr/local/etc/php/php.ini
-- ./php/conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
-- ./php/conf/ssl.conf:/etc/apache2/mods-available/ssl.conf
-```
-
-## 再起動
-```
-docker-compose up -d
-```
 
 # その他コマンド
 
