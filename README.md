@@ -112,3 +112,8 @@ docker-compose exec web gosu $(id -u):$(id -g) ~~
 ```
 docker-compose build --no-cache
 ```
+
+# 課題
+- 初回up時に空のDBを作る、もしくは所定の場所にdumpを置いてrestoreする
+- latestなwp引っ張ってきて初期設定まで自動でおわらせる
+- ついでにフロントの開発環境を持ってくる

@@ -2,6 +2,7 @@
 /vendor
 .env
 *__*
+.DS_Store
 
 /html/*
 !/html/.gitkeep

@@ -23,8 +23,8 @@ services:
     depends_on:
       # - postgres
       - mysql
-    extra_hosts:
-      - ${WEB_HOST_NAME:-webcontainer.dev.internal}:127.0.0.1
+    # extra_hosts:
+    #   - ${WEB_HOST_NAME:-webcontainer.dev.internal}:127.0.0.1
     env_file:
       .env
 
