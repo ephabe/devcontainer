@@ -43,12 +43,12 @@ SSL化不要の場合は docker-compose.yml 内、webコンテナのvolumeesの�
 
 ## 起動
 ```
-docker-compose up -d
+bash up.sh
 ```
 
 ## 終了
 ```
-docker-compose down
+bash down.sh
 ```
 
 
@@ -77,6 +77,8 @@ openssl req -new -sha256 -key ssl.key -out ssl.csr
 ```
 
 ssl.txt 作成
+
+ワイルドカードで作成することで次回以降はファイルをコピーしてくるだけで使える。
 ```
 echo "subjectAltName = DNS:dev.internal, DNS:*.dev.internal" > san.txt
 ```
@@ -100,6 +102,10 @@ openssl x509 -in ssl.crt -text -noout
 ## 証明書をホスト側にインストール
 myca直下に作成されたcrtファイルをホストにインストールする。
 
+# WPセットアップ
+```
+docker-compose exec web gosu $(id -u):$(id -g) bash /scripts/wp/wpsetup.sh
+```
 
 # その他コマンド
 
@@ -114,6 +120,5 @@ docker-compose build --no-cache
 ```
 
 # 課題
-- 初回up時に空のDBを作る、もしくは所定の場所にdumpを置いてrestoreする
-- latestなwp引っ張ってきて初期設定まで自動でおわらせる
-- ついでにフロントの開発環境を持ってくる
+- pgsql対応
+- フロントの汎用開発環境を持ってくる

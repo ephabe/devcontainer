@@ -57,3 +57,8 @@ RUN mkdir /.npm/_locks && chown -R $USERNAME:$GROUPNAME /.npm/_locks
 RUN curl -sSL https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 -o mhsendmail \
     && chmod +x mhsendmail \
     && mv mhsendmail /usr/local/bin/mhsendmail
+
+#wpcli
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp

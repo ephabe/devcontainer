@@ -17,38 +17,15 @@ services:
       - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
       - ./apache/ssl.conf:/etc/apache2/mods-available/ssl.conf
       - ./myca:/etc/ssl/myca
+      - ./scripts:/scripts
+      - ./.env:/.env
     ports:
       - ${WEB_HTTP_PORT:-80}:80
       - ${WEB_HTTPS_PORT:-443}:443
-    depends_on:
-      # - postgres
-      - mysql
     # extra_hosts:
     #   - ${WEB_HOST_NAME:-webcontainer.dev.internal}:127.0.0.1
     env_file:
       .env
-
-  # postgres:
-  #   image: postgres:11
-  #   volumes:
-  #     - ./postgres_db:/var/lib/postgresql/data
-  #     - ./postgres_ex:/ex
-  #   environment:
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-
-  mysql:
-    hostname: mysql
-    image: mysql:8.0
-    volumes:
-      - ./mysql_db:/var/lib/mysql
-      - ./mysql_ex:/ex
-    ports:
-      - ${MYSQL_PORT:-3306}:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
 
   mail:
     hostname: smtp4dev
@@ -60,10 +37,3 @@ services:
     environment:
       - ServerOptions__HostName=smtp4dev
       - ServerOptions__BasePath=/smtp4dev
-
-  # mail:
-  #   hostname: mailhog
-  #   image: mailhog/mailhog
-  #   ports:
-  #     - ${MAILHOG_SMTP_PORT:-1025}:1025
-  #     - ${MAILHOG_FRONT_PORT:-8025}:8025
