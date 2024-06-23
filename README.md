@@ -107,6 +107,17 @@ myca直下に作成されたcrtファイルをホストにインストールす�
 docker-compose exec web gosu $(id -u):$(id -g) bash /scripts/wp/wpsetup.sh
 ```
 
+## テーマ他セットアップ(試用運転中)
+テーマを設置
+```
+git clone https://github.com/ephabe/webtemplate.git html/wp-content/themes/webtemplatewp
+```
+
+```
+docker-compose exec web gosu $(id -u):$(id -g) bash /scripts/wp/wpsetup_add.sh
+```
+
+
 # その他コマンド
 
 ## ユーザーを指定して実行
