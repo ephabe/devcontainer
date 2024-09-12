@@ -1,3 +1,5 @@
+#!/bin/bash
+
 source /.env
 
 wp core download --locale=ja --path=/var/www/html
