@@ -1,8 +1,21 @@
 services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/templates/:/etc/nginx/templates
+      - ./myca/:/etc/nginx/certs
+    ports:
+      - '443:443'
+      - '80:80'
+      - '5173:5173'
+    environment:
+      DEV_NGINX_SERVER_NAME: '${WEB_HOST_NAME:-localhost}'
+      DEV_NGINX_PROXY_PASS: 'web'
+
   web:
     hostname: web
     build:
-      context: ./php
+      context: ./php-apache
       dockerfile: ./dockerfile
       args:
         - USERNAME=${USERNAME:-ubuntu}
@@ -12,17 +25,12 @@ services:
     volumes:
       - ./html:/var/www/html
       - ./html_default:/var/www/html_default
-      - ./php/php.ini:/usr/local/etc/php/php.ini
-      - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
-      - ./apache/ssl.conf:/etc/apache2/mods-available/ssl.conf
-      - ./myca:/etc/ssl/myca
+      - ./php-apache/php.ini:/usr/local/etc/php/php.ini
+      - ./php-apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
       - ./scripts:/scripts
-      - ./.env:/.env
-    ports:
-      - ${WEB_HTTP_PORT:-80}:80
-      - ${WEB_HTTPS_PORT:-443}:443
-    # extra_hosts:
-    #   - ${WEB_HOST_NAME:-webcontainer.dev.internal}:127.0.0.1
+      - ./.env:/.env_file
+    extra_hosts:
+      - ${WEB_HOST_NAME:-webcontainer.dev.internal}:127.0.0.1
     env_file:
       .env
 

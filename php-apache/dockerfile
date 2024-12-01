@@ -1,4 +1,4 @@
-FROM php:8.3.12-apache
+FROM php:8.3.14-apache
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN apt-get update && \
     apt-get -y install libpq-dev \
@@ -30,7 +30,7 @@ RUN apt-get install -y \
 && docker-php-ext-install -j$(nproc) gd
 
 # node
-RUN apt-get install -y nodejs npm && npm install n -g && n 20.12.2
+RUN apt-get install -y nodejs npm && npm install n -g && n 22.11
 
 # gosu
 RUN apt-get install -y gosu

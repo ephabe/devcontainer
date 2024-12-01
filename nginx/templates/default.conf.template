@@ -1,0 +1,42 @@
+map $http_upgrade $connection_upgrade { 
+    default upgrade;
+    ''      close;
+} 
+
+server {
+    server_name ${DEV_NGINX_SERVER_NAME};
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    server_name ${DEV_NGINX_SERVER_NAME};
+    listen 443 ssl;
+    client_max_body_size 20M;
+    ssl_certificate     /etc/nginx/certs/ssl.crt;
+    ssl_certificate_key /etc/nginx/certs/ssl.key;
+    location / {
+        proxy_pass http://${DEV_NGINX_PROXY_PASS};
+        proxy_redirect http:// https://;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+server {
+    server_name ${DEV_NGINX_SERVER_NAME};
+    listen 5173 ssl;
+    client_max_body_size 20M;
+    ssl_certificate     /etc/nginx/certs/ssl.crt;
+    ssl_certificate_key /etc/nginx/certs/ssl.key;
+
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header Upgrade $http_upgrade; 
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Connection $connection_upgrade;
+
+    location / {
+        proxy_pass http://${DEV_NGINX_PROXY_PASS}:5173;
+    }
+}
